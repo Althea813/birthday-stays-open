@@ -26,7 +26,7 @@ export function BirthdayEnding({ phase, onBlow, onClose, season }: { phase: Endi
         <article className="birthday-letter">
           <div className="letter-heading"><span>A NOTE FOR YOU</span><span>A LITTLE ROOM</span></div>
           <div className="letter-body">{birthdayLetter.map((line, i) => <p key={i}>{line}</p>)}</div>
-          <p className="letter-signature">象象</p>
+          <p className="letter-signature">币币</p>
           <div className="letter-ending"><h2>Have a lovely day.</h2><p>愿你今天有一点开心。</p><span>ONE SMALL WISH</span><em>To be continued.</em></div>
           <button className="paper-action" onClick={onClose}>把信收好<ArrowRight size={16} /></button>
         </article>

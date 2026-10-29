@@ -18,6 +18,7 @@ import { latestBirthdayPhoto } from '../lib/storage';
 import { advancePhoto } from '../lib/scene-camera';
 import { FocusControls } from './SpatialObjects';
 import { Room3D } from './Room3D';
+import { shelfBooks, type ShelfBook } from '../data/books';
 
 export function MemoryRoom() {
   const [hydrated,setHydrated]=useState(false),[callOpen,setCallOpen]=useState(false),[replaying,setReplaying]=useState(false);
@@ -27,6 +28,7 @@ export function MemoryRoom() {
   const [viewReset,setViewReset]=useState(0),[dialRequest,setDialRequest]=useState(0),[elephantPet,setElephantPet]=useState(0);
   const [magic,setMagic]=useState(false),[whisper,setWhisper]=useState(''),[journalOpen,setJournalOpen]=useState(false);
   const [weatherOpen,setWeatherOpen]=useState(false);
+  const [selectedBook, setSelectedBook] = useState<ShelfBook | null>(null);
   const headerRef=useRef<HTMLElement>(null);
   useEffect(()=>{
     if(!journalOpen&&!weatherOpen)return;
@@ -47,6 +49,18 @@ export function MemoryRoom() {
   const whisperTimer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined),answerTimer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined),calendarTimer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined);
   const state=useRoomState();
   const canExplore=entered&&!callOpen&&ending==='idle'&&!memory&&!cameraOpen;
+
+  const handleBookSelect = (bookId: string) => {
+    if (!bookId) {
+      setSelectedBook(null);
+      return;
+    }
+    const book = shelfBooks.find(b => b.id === bookId);
+    if (book) {
+      setSelectedBook(book);
+    }
+  };
+
   useEffect(()=>{
     let alive=true;
     void (async()=>{
@@ -66,7 +80,12 @@ export function MemoryRoom() {
     return()=>{document.removeEventListener('pointerdown',engage,true);document.removeEventListener('keydown',engage,true);};
   },[entered,callOpen]);
   useEffect(()=>{roomAudio.setMuted(state.audioMuted);},[state.audioMuted]);
-  function closeFocus(){setFocus(null);roomAudio.stopPhone();requestAnimationFrame(()=>returnTo.current?.focus({preventScroll:true}));}
+  function closeFocus(){
+    setFocus(null);
+    setSelectedBook(null);
+    roomAudio.stopPhone();
+    requestAnimationFrame(()=>returnTo.current?.focus({preventScroll:true}));
+  }
   useEffect(()=>{
     const escape=(event:KeyboardEvent)=>{if(event.key==='Escape'&&!memory&&!cameraOpen&&ending==='idle'){closeFocus();setMagic(false);setWhisper('');setJournalOpen(false);}};
     window.addEventListener('keydown',escape);return()=>window.removeEventListener('keydown',escape);
@@ -141,7 +160,7 @@ export function MemoryRoom() {
     if(id==='tv-prev'){setTVIndex(i=>(i-1+memories.length)%memories.length);return;}
     if(id==='tv-next'){setTVIndex(i=>advancePhoto(i,memories.length));return;}
     if(id==='tv-pause'){setTVPaused(p=>!p);roomAudio.foley('switch');return;}
-        if(['mug','tulips','cushion','keys','coffee'].includes(id)){state.discover(id==='coffee'||id==='mug'?'coffee':id);roomAudio.foley(id==='cushion'?'paper':'pickup');return;}
+    if(['mug','tulips','cushion','keys','coffee'].includes(id)){state.discover(id==='coffee'||id==='mug'?'coffee':id);roomAudio.foley(id==='cushion'?'paper':'pickup');return;}
 
     if(id.startsWith('book:')){setFocus('books');state.discover('books');return;}
     if(id==='frames'&&focus==='frames'){frameFlip();return;}
@@ -149,7 +168,7 @@ export function MemoryRoom() {
     openObject(id as ObjectId);
   }
   const objectShortcuts:[ObjectId,string][]=[['frames','墙上的相框'],['books','书架'],['sunny','晴天的书签'],['magic','魔杖'],['calls','旧电话'],['tv','电视'],['together','合照册'],['portraits','单人拍立得'],['calendar','翻页台历'],['cats','沙发上的猫'],['window-cat','窗边的猫'],['elephant','小象'],['lamp','落地灯'],['desk-lamp','相框灯'],['camera','拍新照片'],['cake','许愿蛋糕'],['drawer','电话柜的抽屉'],['wall-charm','墙上的星星']];
-  return <main style={atmosphereSurfaces[state.atmosphere] as CSSProperties} data-atmosphere={state.atmosphere} data-tone={atmospheres[state.atmosphere].tone} className={`experience is-three-dimensional ${entered?'has-entered':''} ${callOpen?'has-call':''} ${focus?'is-focused':''} ${ending==='wish'?'is-wishing':''} ${ending==='relight'?'is-relighting':''} ${ending==='dark'||ending==='relight'?'is-cinematic':''}`}>
+  return <main style={atmosphereSurfaces[state.atmosphere] as CSSProperties} data-atmosphere={state.atmosphere} data-tone={atmospheres[state.atmosphere].tone} className={`experience is-three-dimensional ${entered?'has-entered':''} ${callOpen?'has-call':''} ${focus?'is-focused':''} ${ending==='wish'?'is-wishing':''} ${ending==='relight'?'is-cinematic':''} ${ending==='dark'||ending==='relight'?'is-cinematic':''}`}>
     <RoomBackdrop value={state.atmosphere}/>
     <div className="room-surface" inert={!hydrated||callOpen}>
     <Room3D state={{entered,drawerOpen,charmPulse,blocked:!canExplore,focus,frameIndex,frameFlipped,tvIndex,tvPaused,calendarPage,selectedBook:null,elephantPet,discovered:state.discoveredObjects??[],atmosphere:state.atmosphere,lighting:light,sofaPet,windowPet,count:discoveredCategories(state.discoveredMemories).length,ready:state.endingUnlocked,seen:state.endingSeen,ending,magic,viewReset,dialRequest,savedPhoto}} onObject={sceneAction} onDial={()=>{setCallIndex(n=>(n+1)%callFragments.length);state.discover('calls');roomAudio.foley('pickup');}}/>
@@ -169,7 +188,7 @@ export function MemoryRoom() {
     {canExplore&&!focus&&<button className="room-reset" aria-label="回到原位" title="回到原位" onClick={()=>{setWeatherOpen(false);setJournalOpen(false);setViewReset(n=>n+1);}}><RotateCcw size={18}/></button>}
     <div className="room-vignette"/><div className="room-film-grain" aria-hidden="true"/>
 
-    {focus&&<FocusControls kind={focus} onClose={closeFocus} frameIndex={frameIndex} frameFlipped={frameFlipped} onFrameMove={n=>{setFrameIndex(i=>(i+n+2)%2);setFrameFlipped(false);roomAudio.foley('paper');}} onFrameFlip={frameFlip} selectedBook={null} onBookSelect={()=>{}} onDial={()=>setDialRequest(n=>n+1)} onBookMemory={isMagic=>setMemory(isMagic?'magic':'sunny')} callIndex={callIndex} calendarPage={calendarPage} onCalendarFlip={calendarFlip} tvIndex={tvIndex} tvPaused={tvPaused} onTVPause={()=>setTVPaused(p=>!p)} onTVNext={()=>setTVIndex(i=>advancePhoto(i,memories.length))} onWindowCat={()=>petCat(true)} drawerOpen={drawerOpen} onDrawerToggle={()=>setDrawerOpen(v=>!v)} onDrawerMagic={()=>sceneAction('drawer-star')}/>}
+    {focus&&<FocusControls kind={focus} onClose={closeFocus} frameIndex={frameIndex} frameFlipped={frameFlipped} onFrameMove={n=>{setFrameIndex(i=>(i+n+2)%2);setFrameFlipped(false);roomAudio.foley('paper');}} onFrameFlip={frameFlip} selectedBook={selectedBook} onBookSelect={handleBookSelect} onDial={()=>setDialRequest(n=>n+1)} onBookMemory={isMagic=>setMemory(isMagic?'magic':'sunny')} callIndex={callIndex} calendarPage={calendarPage} onCalendarFlip={calendarFlip} tvIndex={tvIndex} tvPaused={tvPaused} onTVPause={()=>setTVPaused(p=>!p)} onTVNext={()=>setTVIndex(i=>advancePhoto(i,memories.length))} onWindowCat={()=>petCat(true)} drawerOpen={drawerOpen} onDrawerToggle={()=>setDrawerOpen(v=>!v)} onDrawerMagic={()=>sceneAction('drawer-star')}/>}
     {whisper&&<p className="room-whisper" role="status" key={whisper}>{whisper}</p>}
     {catOffer&&!memory&&!focus&&ending==='idle'&&<button className="cat-photos-link" onClick={()=>{setMemory('cats');setCatOffer(false);setWhisper('');}}>many cats ↗</button>}
     {magic&&<button className="nox-button" onClick={()=>setMagic(false)}>Nox</button>}

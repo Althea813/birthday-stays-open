@@ -219,17 +219,21 @@ export function createRoomModel(scene:T.Scene){
   function calendarTexture(actual:boolean){
     const canvas=document.createElement('canvas');canvas.width=512;canvas.height=650;const c=canvas.getContext('2d')!;
     c.fillStyle='#e9d9b7';c.fillRect(0,0,512,650);c.strokeStyle='#a99672';c.lineWidth=2;c.strokeRect(22,22,468,606);c.fillStyle='#573b26';c.textAlign='center';
-    c.font='32px Georgia';c.fillText(actual?'TOMORROW':'TODAY',256,112);c.font='240px Georgia';c.fillText(actual?'02':'01',256,368);
-    c.font='23px Georgia';c.fillText(actual?'A NEW LITTLE DAY':'ONE SMALL WISH',256,459);c.strokeRect(106,500,300,62);c.font='25px Georgia';c.fillText(actual?'TAKE IT SLOW':'MAKE IT COUNT',256,541);
+    c.font='32px Georgia';c.fillText(actual?'TOMORROW':'TODAY',256,112);
+    c.font='240px Georgia';c.fillText(actual?'11.9':'11.8',256,368);
+    c.font='23px Georgia';c.fillText(actual?'A NEW LITTLE DAY':'ONE SMALL WISH',256,459);
+    c.strokeRect(106,500,300,62);
+    c.font='25px Georgia';c.fillText(actual?'TAKE IT SLOW':'MAKE IT COUNT',256,541);
     const texture=new T.CanvasTexture(canvas);texture.colorSpace=T.SRGBColorSpace;texture.anisotropy=4;ownedTextures.add(texture);return texture;
-  }
-  const calendarMat=new T.MeshStandardMaterial({map:calendarTexture(false),roughness:.98});
-  const calendarNextMat=new T.MeshStandardMaterial({map:calendarTexture(true),roughness:.98});
-  const calendarBase=mesh(new T.PlaneGeometry(.56,.66),calendarNextMat,calendar);calendarBase.position.set(0,.36,.012);
-  const leafGeometry=new T.PlaneGeometry(.56,.66,8,24);leafGeometry.translate(0,-.33,0);
-  const calendarLeaf=mesh(leafGeometry,calendarMat,calendarPivot);calendarLeaf.position.z=.014;
-  const calendarBack=mesh(leafGeometry.clone(),new T.MeshStandardMaterial({map:textTexture(['A LITTLE','NEW DAY'],512,650,'#e9d9b7','#938064',45),roughness:1,side:T.BackSide}),calendarPivot);calendarBack.position.z=.012;calendarLeaf.userData.deforming=true;calendarBack.userData.deforming=true;
-  for(let i=0;i<7;i++){const ring=mesh(new T.TorusGeometry(.029,.005,8,20),gold,calendar);ring.rotation.y=Math.PI/2;ring.position.set(-.24+i*.08,.705,.0);}tag(calendar,'calendar','翻页');
+}
+const calendarMat=new T.MeshStandardMaterial({map:calendarTexture(false),roughness:.98});
+const calendarNextMat=new T.MeshStandardMaterial({map:calendarTexture(true),roughness:.98});
+const calendarBase=mesh(new T.PlaneGeometry(.56,.66),calendarNextMat,calendar);calendarBase.position.set(0,.36,.012);
+const leafGeometry=new T.PlaneGeometry(.56,.66,8,24);leafGeometry.translate(0,-.33,0);
+const calendarLeaf=mesh(leafGeometry,calendarMat,calendarPivot);calendarLeaf.position.z=.014;
+const calendarBack=mesh(leafGeometry.clone(),new T.MeshStandardMaterial({map:textTexture(['A LITTLE','NEW DAY'],512,650,'#e9d9b7','#938064',45),roughness:1,side:T.BackSide}),calendarPivot);calendarBack.position.z=.012;calendarLeaf.userData.deforming=true;calendarBack.userData.deforming=true;
+for(let i=0;i<7;i++){const ring=mesh(new T.TorusGeometry(.029,.005,8,20),gold,calendar);ring.rotation.y=Math.PI/2;ring.position.set(-.24+i*.08,.705,.0);}tag(calendar,'calendar','翻页');
+
   // CRT: a real cabinet, feet, convex glass and independently updating screen.
   const tv=new T.Group();tv.position.set(-3.55,.1,2.12);tv.rotation.y=1.12;group.add(tv);
   box(1.94,1.45,1.05,wood,[0,.85,0],tv,.11);box(1.79,1.27,.06,black,[0,.86,.545],tv,.08);

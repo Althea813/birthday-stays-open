@@ -6,8 +6,8 @@ export const shelfBooks = [
   { id: 'hp5', title: '哈利·波特与凤凰社', spine: '凤凰社', author: 'J. K. 罗琳', volume: 'V', color: '#665a39', family: 'magic', note: '愿你总能找到站在你身边的人。' },
   { id: 'hp6', title: '哈利·波特与混血王子', spine: '混血王子', author: 'J. K. 罗琳', volume: 'VI', color: '#3d5148', family: 'magic', note: '你看，书页里也会藏着别人的字。' },
   { id: 'hp7', title: '哈利·波特与死亡圣器', spine: '死亡圣器', author: 'J. K. 罗琳', volume: 'VII', color: '#5a4539', family: 'magic', note: '故事读完了，魔法还在。' },
-  { id: 'second-sex', title: '第二性', spine: '第二性', author: '西蒙娜·德·波伏娃', volume: '', color: '#654438', family: 'thought', note: '慢慢读，也慢慢认识自己。' },
-  { id: 'misogyny', title: '厌女', spine: '厌女', author: '上野千鹤子', volume: '', color: '#4a5040', family: 'thought', note: '有些问题，值得多翻几页。' },
-  { id: 'feminism', title: '从零开始的女性主义', spine: '从零开始的女性主义', author: '上野千鹤子 · 田房永子', volume: '', color: '#866746', family: 'thought', note: '从一页开始，也很好。' },
+  { id: 'second-sex', title: '傲慢与偏见', spine: '傲慢与偏见', author: '简·奥斯汀', volume: '', color: '#654438', family: 'thought', note: '慢慢读，也慢慢认识自己。' },
+  { id: 'misogyny', title: '追风筝的人', spine: '追风筝的人', author: '卡勒德·胡赛尼', volume: '', color: '#4a5040', family: 'thought', note: '有些问题，值得多翻几页。' },
+  { id: 'feminism', title: '小王子', spine: '小王子', author: '安托万·德·圣埃克苏佩里', volume: '', color: '#866746', family: 'thought', note: '从一页开始，也很好。' },
 ] as const;
 export type ShelfBook = typeof shelfBooks[number];
